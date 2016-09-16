@@ -20,17 +20,17 @@ Con respecto a las decisiones tomadas para la implementación, podemos enumerar 
 \begin{itemize}
 
 \item La fecha de ingreso de un caso debe ser posterior a la fecha de ocurrencia.\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 ALTER TABLE CASO ADD  CONSTRAINT CK_CASO_FechaOcurrenciaMenorIgualFechaIngreso CHECK  (([fecha_ocurrencia]<=[fecha_ingreso]))
-\end{verbatim}
+\end{lstlisting}
 
 \item La fecha de ingreso de la evidencia debe ser posterior a la fecha de recolección y de sellado.\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 ALTER TABLE EVIDENCIA ADD  CONSTRAINT CK_EVIDENCIA_VALIDAR_FECHAS_SELLADO_HALLAZGO_INGRESO CHECK  (([fecha_hallazgo]<=[fecha_sellado] AND [fecha_sellado]<=[fecha_ingreso]))
-\end{verbatim}
+\end{lstlisting}
 
 \item La fecha de recolección de evidencia debe ser posterior a la fecha de ingreso del caso correspondiente.\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER ValidarFechasEvidencia
    ON  EVIDENCIA
    FOR INSERT, UPDATE
@@ -54,10 +54,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item La fecha de ocurrencia de un evento debe ser anterior a la fecha de ingreso del caso correspondiente.\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER ValidarFechasEvento
    ON  EVENTO
    FOR INSERT, UPDATE
@@ -84,10 +84,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item Un investigador principal no puede ser auxiliar del mismo caso\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER ValidarAuxiliaresPrincipal
    ON  AUXILIAR
    FOR INSERT, UPDATE
@@ -113,10 +113,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item Un investigador auxiliar no puede ser principal del mismo caso\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER ValidarPrincipalAuxiliares
    ON  CASO
    FOR INSERT, UPDATE
@@ -142,10 +142,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item Una persona culpable debe estar involucrado en el caso\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER CulpableDebeSerInvolucrado
    ON  CULPABLE
    FOR INSERT, UPDATE
@@ -174,10 +174,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item Los sucesos están asociados únicamente a personas involucradas\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER LosSucesosDebenSerDeInvolucrados
    ON  SUCESO
    FOR INSERT, UPDATE
@@ -203,10 +203,10 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 
 \item No puede haber una persona involucrada al caso que sea oficial principal o auxiliar del mismo\\
-\begin{verbatim}[breaklines=true]
+\begin{lstlisting}
 CREATE TRIGGER LosInvolucradosNoPuedenSerOficialesDelCaso
    ON  INVOLUCRADO
    FOR INSERT, UPDATE
@@ -235,5 +235,5 @@ BEGIN
 		ROLLBACK TRANSACTION
 	END
 END
-\end{verbatim}
+\end{lstlisting}
 \end{itemize}
