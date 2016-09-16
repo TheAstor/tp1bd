@@ -1,1 +1,239 @@
 \section{Diseño Físico}
+
+\noindent Para la implementación del diseño físico de la solución se ha utilizado el motor de base de datos Microsoft SQL Server 2012 (Express Edition). Esta edición es gratuita, de libre descarga aunque tiene ciertas restricciones (en cuanto a la utilización de recursos de hardware y a las herramientas disponibles). Sin embargo, para la implementación requerida para este trabajo práctico, es mucho más que suficiente.\\
+Para la administración y, manipulación de datos y estructura de la base, la herramienta elegida fue el Microsoft SQL Server 2012 Management Studio (MSQLS2012SMS), el cual también es de libre descarga y ha permitido llevar a cabo las tareas derivadas del trabajo práctico con mucha comodidad.\\
+Para definición de las tablas y restricciones nos hemos valido de las herramientas gráficas provistas por MSQLS2012MS.
+Con respecto a las decisiones tomadas para la implementación, podemos enumerar las siguientes:\\
+\begin{enumerate}
+\item Todos los ids se han implementado con tipo int\\
+\item Los campos numéricos se han implementado con tipo int\\
+\item Los campos de texto utilizados como nombres o breves descripciones se han implementado con tipo nvarchar(50)\\
+\item Los campos de texto de mayor extensión (testimonios, descripciones largas, etc) se han implementado con tipo nvarchar(MAX).\\
+\item Se han unificado aquellos campos con fecha y hora, implementando este con el tipo datetime.\\
+\item Para aquellos campos de tipo fecha, donde no tiene relevancia la hora, se ha utilizado el tipo date.\\
+\end{enumerate}
+
+\subsection{Implementación de restricciones}
+
+\noindent Las restricciones se han implementado como constrains o bien como triggers que se disparan luego de realizar un insert o update de alguna tabla involucrada.\\
+
+\begin{itemize}
+
+\item La fecha de ingreso de un caso debe ser posterior a la fecha de ocurrencia.\\
+\begin{verbatim}[breaklines=true]
+ALTER TABLE CASO ADD  CONSTRAINT CK_CASO_FechaOcurrenciaMenorIgualFechaIngreso CHECK  (([fecha_ocurrencia]<=[fecha_ingreso]))
+\end{verbatim}
+
+\item La fecha de ingreso de la evidencia debe ser posterior a la fecha de recolección y de sellado.\\
+\begin{verbatim}[breaklines=true]
+ALTER TABLE EVIDENCIA ADD  CONSTRAINT CK_EVIDENCIA_VALIDAR_FECHAS_SELLADO_HALLAZGO_INGRESO CHECK  (([fecha_hallazgo]<=[fecha_sellado] AND [fecha_sellado]<=[fecha_ingreso]))
+\end{verbatim}
+
+\item La fecha de recolección de evidencia debe ser posterior a la fecha de ingreso del caso correspondiente.\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER ValidarFechasEvidencia
+   ON  EVIDENCIA
+   FOR INSERT, UPDATE
+AS 
+BEGIN	
+	DECLARE @fechaRecoleccion as Datetime
+	DECLARE @fechaCaso as datetime	
+	DECLARE @id_caso as int
+
+    SELECT @fechaRecoleccion = fecha_hallazgo, @id_caso = id_caso
+	FROM inserted
+
+	SELECT @fechaCaso = fecha_ocurrencia
+	FROM CASO
+	WHERE id_caso = @id_caso
+
+	IF @fechaRecoleccion < @fechaCaso
+
+	BEGIN
+		RAISERROR('No se puede tener una evidencia con fecha de hallazgo menor a la de la ocurrencia del caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item La fecha de ocurrencia de un evento debe ser anterior a la fecha de ingreso del caso correspondiente.\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER ValidarFechasEvento
+   ON  EVENTO
+   FOR INSERT, UPDATE
+AS 
+BEGIN	
+	DECLARE @fechaEvento as Datetime
+	DECLARE @fechaCaso as datetime	
+	DECLARE @id_caso as int
+
+    SELECT @fechaEvento = fecha_evento, @id_caso = S.id_caso
+	FROM inserted I
+	INNER JOIN SUCESO S
+		ON I.id_evento = S.id_evento
+
+
+	SELECT @fechaCaso = fecha_ocurrencia
+	FROM CASO
+	WHERE id_caso = @id_caso
+
+	IF @fechaEvento < @fechaCaso
+
+	BEGIN
+		RAISERROR('No se puede tener un evento con fecha menor a la de la ocurrencia del caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item Un investigador principal no puede ser auxiliar del mismo caso\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER ValidarAuxiliaresPrincipal
+   ON  AUXILIAR
+   FOR INSERT, UPDATE
+AS 
+BEGIN
+	DECLARE @dni_oficial as int
+	DECLARE @id_caso as int	
+	DECLARE @cantidad as int
+	
+
+    SELECT @dni_oficial = dni_oficial, @id_caso = id_caso
+	FROM inserted
+
+
+	SELECT @cantidad = COUNT(*) 
+	FROM CASO
+	WHERE id_caso = @id_caso AND dni_oficial = @dni_oficial
+
+	IF @cantidad > 0
+
+	BEGIN
+		RAISERROR('No se puede tener un auxiliar que sea principal del mismo caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item Un investigador auxiliar no puede ser principal del mismo caso\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER ValidarPrincipalAuxiliares
+   ON  CASO
+   FOR INSERT, UPDATE
+AS 
+BEGIN
+	DECLARE @dni_oficial as int
+	DECLARE @id_caso as int	
+	DECLARE @cantidad as int
+	
+
+    SELECT @dni_oficial = dni_oficial, @id_caso = id_caso
+	FROM inserted
+
+
+	SELECT @cantidad = COUNT(*) 
+	FROM AUXILIAR
+	WHERE id_caso = @id_caso AND dni_oficial = @dni_oficial
+
+	IF @cantidad > 0
+
+	BEGIN
+		RAISERROR('No se puede tener un auxiliar que sea principal del mismo caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item Una persona culpable debe estar involucrado en el caso\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER CulpableDebeSerInvolucrado
+   ON  CULPABLE
+   FOR INSERT, UPDATE
+AS 
+BEGIN
+	DECLARE @dni as int
+	DECLARE @id_caso as int	
+	DECLARE @cantidad as int
+	
+
+    SELECT @dni = I.dni, @id_caso = E.id_caso
+	FROM inserted I
+	INNER JOIN ESTADO E
+		ON I.id_estado = E.id_estado
+
+
+	SELECT @cantidad = COUNT(*) 
+	FROM CASO C
+	INNER JOIN INVOLUCRADO I
+		ON C.id_caso = I.dni
+	WHERE C.id_caso = @id_caso AND I.dni = @dni
+
+	IF @cantidad = 0
+	BEGIN
+		RAISERROR('No se puede tener un culpable que no sea un involucrado del caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item Los sucesos están asociados únicamente a personas involucradas\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER LosSucesosDebenSerDeInvolucrados
+   ON  SUCESO
+   FOR INSERT, UPDATE
+AS 
+BEGIN
+	DECLARE @dni as int
+	DECLARE @id_caso as int	
+	DECLARE @cantidad as int
+	
+
+    SELECT @dni = dni, @id_caso = id_caso
+	FROM inserted
+
+	SELECT @cantidad = COUNT(*) 
+	FROM CASO C
+	INNER JOIN INVOLUCRADO I
+		ON C.id_caso = I.dni
+	WHERE C.id_caso = @id_caso AND I.dni = @dni
+
+	IF @cantidad = 0
+	BEGIN
+		RAISERROR('No se puede tener un suceso que no sea llevado a cabo a un involucrado al caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+
+\item No puede haber una persona involucrada al caso que sea oficial principal o auxiliar del mismo\\
+\begin{verbatim}[breaklines=true]
+CREATE TRIGGER LosInvolucradosNoPuedenSerOficialesDelCaso
+   ON  INVOLUCRADO
+   FOR INSERT, UPDATE
+AS 
+BEGIN
+	DECLARE @dni as int
+	DECLARE @id_caso as int	
+	DECLARE @cantidadPrincipal as int
+	DECLARE @cantidadAuxiliar as int
+	
+
+    SELECT @dni = dni, @id_caso = id_caso
+	FROM inserted
+
+	SELECT @cantidadPrincipal = COUNT(*) 
+	FROM CASO C
+
+	SELECT @cantidadAuxiliar = COUNT(*)
+	FROM AUXILIAR A
+	WHERE A.dni_oficial = @dni AND A.id_caso = @id_caso
+
+
+	IF @cantidadAuxiliar + @cantidadPrincipal > 0
+	BEGIN
+		RAISERROR('No se puede tener un involucrado que sea oficial principal o auxiliar del caso', 10,1);
+		ROLLBACK TRANSACTION
+	END
+END
+\end{verbatim}
+\end{itemize}
