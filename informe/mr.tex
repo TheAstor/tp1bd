@@ -1,0 +1,32 @@
+\par
+\noindent \textbf{Provincia}(\underline{id\_provincia}, nom\_provincia) \\
+\textbf{Localidad}(\underline{id\_localidad}, nom\_localidad, \dashuline{id\_provincia})\\
+\textbf{Ciudad}(\underline{id\_ciudad}, nom\_ciudad, \dashuline{id\_localidad})\\
+\textbf{Calle}(\underline{id\_calle}, nom\_calle, \dashuline{id\_ciudad})\\
+\textbf{Domicilio}(\underline{id\_domicilio}, edificio, altura, depto, piso, \dashuline{id\_calle})\\
+\textbf{Involucrado}(\underline{\dashuline{id\_caso}, \dashuline{dni}}, rol) (*)\\
+\textbf{Resuelto}(\underline{\dashuline{id\_estado}}, descripción, \dashuline{dni})\\
+\textbf{Culpable}(\underline{\dashuline{id\_estado}, \dashuline{dni}})\\
+\textbf{Caso}(\underline{id\_caso}, categoría, f\_ingreso, descripción, fecha\_oc, hora\_oc, \dashuline{id\_domicilio}, \dashuline{dni})\\
+\textbf{Testimonio}(\underline{id\_testimonio}, hora\_tes, fecha\_tes, texto, \dashuline{id\_caso})\\
+\textbf{Pesona}(\underline{dni}, nombre, apellido, fecha\_nac, \dashuline{id\_domicilio})\\
+\textbf{Oficial}(\underline{\dashuline{dni}}, rango, f\_ingreso, nro\_placa, nro\_escritorio, \dashuline{id\_servicio}, \dashuline{id\_departaento})\\
+\textbf{Custodia}(\underline{id\_custodia}, comentario, hora\_mov, \dashuline{id\_domicilio})\\
+\textbf{Evento}(\underline{id\_evento}, descripción, fecha\_ev, hora\_ev)\\
+\textbf{Sucesos}(\underline{\dashuline{dni}, \dashuline{id\_evento}}, \dashuline{id\_caso})\\
+\textbf{Evidencia}(\underline{\dashuline{id\_caso}, id\_evidencia}, fecha\_sell, hora\_sell, fecha\_enc, hora\_enc, f\_ingreso,descripción))\\
+\textbf{Presentan}(\underline{\dashuline{id\_testimonio}, \dashuline{dni}}, \dashuline{dni})\\
+\textbf{Encargado}(\underline{\dashuline{id\_custodia}, \dashuline{id\_evidencia}}, \dashuline{dni})\\
+\textbf{Servicio}(\underline{id\_servicio}, nom\_servicio)\\
+\textbf{Auxiliar}(\underline{\dashuline{dni}, \dashuline{id\_caso}})\\
+\textbf{Departamento}(\underline{id\_departamento}, \dashuline{id\_departamento\_supervisor}, \dashuline{id\_domicilio})\\
+\textbf{Telefono}(\underline{\dashuline{id\_departamento}}, teléfono)\\
+\textbf{Telefono\_persona}(\underline{\dashuline{dni}}, teléfono)\\
+\textbf{Situacion}(\underline{fecha\_ce, \dashuline{id\_estado}, \dashuline{id\_caso}})\\
+\textbf{Pendiente}(\underline{\dashuline{id\_estado}})\\
+\textbf{Descartado}(\underline{\dashuline{id\_estado}}, motivo)\\
+\textbf{Congelado}(\underline{\dashuline{id\_estado}}, comentario)\\
+\textbf{Estado}(\underline{id\_estado})\\
+
+%- La relación involucrado es binaria N:M, sin atributo identificatorio, no dice cómo hacerlo en el apunte. Supongo que se hace así \\
+%- Teléfono aparece como atributo multivaluado 2 veces, le cambio el nombre a uno para que no haya dos tablas distintas con el mismo nombre \\

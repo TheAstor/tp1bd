@@ -1,0 +1,8 @@
+\select@language {spanish}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}{section.1}
+\contentsline {section}{\numberline {2}Modelo Entidad Relaci\IeC {\'o}n}{5}{section.2}
+\contentsline {subsection}{\numberline {2.1}Restricciones adicionales}{6}{subsection.2.1}
+\contentsline {section}{\numberline {3}Modelo Relacional}{7}{section.3}
+\contentsline {section}{\numberline {4}Dise\IeC {\~n}o F\IeC {\'\i }sico}{7}{section.4}
+\contentsline {section}{\numberline {5}C\IeC {\'o}digos de Consultas}{7}{section.5}
+\contentsline {section}{\numberline {6}Conclusiones}{7}{section.6}

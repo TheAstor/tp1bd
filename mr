@@ -1,0 +1,28 @@
+provincia ; id_provincia[pk]; nom_provincia
+localidad ; id_localidad[pk]; nom_localidad; id_provincia[fk]
+ciudad ; id_ciudad[pk]; nom_ciudad; id_localidad[fk]
+calle ; id_calle[pk]; nom_calle; id_ciudad[fk]
+domicilio ; id_domicilio[pk]; edificio; altura; depto; piso; id_calle[fk]
+involucrado ; (id_caso[fk], dni[fk])[pk]; rol
+resuelto ; id_estado[pk, fk]; descripción; dni[fk]
+culpable ; (id_estado[fk], dni[fk])[pk]
+caso ; id_caso[pk]; categoría; f_ingreso; descripción; fecha_oc; hora_oc; id_domicilio[fk]; dni[fk]
+testimonio ; id_testimonio[pk]; hora_tes; fecha_tes; texto; id_caso[fk]
+pesona ; dni[pk]; nombre; apellido; fecha_nac; id_doicilio[fk]
+oficial ; dni[fk, pk]; rango; f_ingreso; nro_placa; nro_escritorio; id_servicio[fk]; id_departaento[fk]
+custodia ; id_custodia[pk]; comentario; hora_mov; id_domicilio[fk]
+evento ; id_evento[pk]; descripción; fecha_ev; hora_ev
+sucesos ; (dni[fk], id_evento[fk])[pk]; id_caso[fk]
+evidencia ; (id_caso[fk], id_evidencia)[pk]; fecha_sell; hora_sell; fecha_enc ; hora_enc; f_ingreso, descripción)
+presentan ; (id_testimonio[fk], dni[fk])[pk]; dni[fk]
+encargado ; (id_custodia[fk], id_evidencia[fk])[pk]; dni[fk]
+servicio ; id_servicio[pk]; nom_servicio
+auxiliar ; (dni[fk], id_caso[fk])[pk]
+departamento ; id_departamento[pk]; id_departamento_supervisor[fk]; id_domicilio[fk]
+telefono ; id_departamento[fk, pk]; teléfono
+telefono_persona ; dni[fk, pk]; teléfono
+situacion ; (fecha_ce, id_estado[fk], id_caso[fk])[pk]
+pendiente ; id_estado[fk, pk]
+descartado ; id_estado[fk, pk]; motivo
+congelado ; id_estado[fk, pk]; comentario
+estado ; id_estado[pk]
