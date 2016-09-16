@@ -28,47 +28,12 @@
 
 %Indice
 \tableofcontents
-\newpage
-
-\section{Introducción}
-%Por ahora copipasteo el enunciado, después se verá si lo mejoramos.
-\par En determinada provincia de nuestro país, se quiere llevar registro de los casos criminales que se producen y la información asociada. De cada caso se precisa registrar la fecha y hora en que ocurrió, fecha de ingreso, una descripción y el lugar del suceso. Cada caso pertenece a una categoría (secuestro, homicidio, robo, etc) y tiene personas involucradas. De las personas se precisa saber el dni, nombre, apellido, domicilio, fecha de nacimiento, teléfonos (celular, fijo, laboral, del domicilio, etc). Hay que tener en cuenta que en un mismo domicilio pueden convivir diferentes personas. A su vez, las personas pueden cumplir diferentes roles en cada caso (víctima, testigo, etc).
-\par Algunas de las personas involucradas son oficiales de policía, de los cuales además se precisa saber el número de placa, fecha de ingreso y número de escritorio asignado. Los oficiales cumplen un determinado servicio y, de cada servicio, se precisa el nombre (tráfico, bancario, etc). Cada oficial pertenece a un departamento. De éstos se precisa el nombre, la dirección, localidad, y una o más líneas telefónicas para comunicarse. Un departamento puede supervisar a otros pero es supervisado exclusivamente por uno solo (o ninguno). Además, un oficial posee un rango específico pero puede haber muchos oficiales con el mismo rango (teniente, sargento, etc). Las personas pueden estar involucradas en más de un caso. A su vez, un caso es investigado por un oficiales, uno de los cuales es el investigador principal y el resto trabajan como auxiliares. Para un caso las personas involucradas pueden tener un conjunto de eventos que formaría una línea de tiempo que se relaciona con el caso. Para cada evento se desea registrar la fecha y hora en que ocurrió y una descripción del mismo. Algunas personas pueden presentar un testimonio o declaración para un caso en particular. Dicho testimonio tendrá la fecha y hora en que se toma testimonio, un texto y habrá un oficial encargado de tomarlo. De cada caso se recolecta evidencia. De ellas se registra la fecha y hora en que se encontró, la descripción, la fecha de ingreso, fecha y hora de sellado. De las evidencias se debe registrar la cadena de custodia, esto es, los lugares por donde pasó (con la fecha y hora de cada movimiento, el oficial a cargo, con un comentario). Una evidencia está situada en una localización particular, pudiéndose mover de una localización a otra (mediante la cadena de custodia).
-\par Los casos pueden estar resueltos, pendientes, congelados o descartados. Los casos resueltos deben contar con la descripción de la resolución y el/los culpables. Para los casos congelados se guarda la fecha en que se congeló y un comentario, para los descartados el motivo y la fecha y para los resueltos, la fecha de resolución y el oficial que cerró el caso. Tener en cuenta las restricciones de fechas (por ejemplo la fecha de cada testimonio o de cada evento no debe ser anterior a la fecha del caso, por ejemplo) vía triggers, constraints, etc.
 
 \newpage
-\section{Modelo Entidad Relación}
+\input{introduccion.tex}
 
-%TODO: agregar una introducción pequenia?
-\begin{figure}[H]
-  \includegraphics[angle=90, width=\linewidth]{figuras/DER.jpg}
-  \caption{Modelo Entidad Relación.}
-  \label{fig:MER}
-\end{figure}
-
-\subsection{Restricciones adicionales}
-
-\begin{itemize}
-\item La fecha de ingreso de un caso debe ser posterior a la fecha de ocurrencia.
-
-\item La fecha de ingreso de la evidencia debe ser posterior a la fecha de recolección.
-
-\item La fecha de recolección de evidencia debe ser posterior a la fecha de ingreso del caso correspondiente.
-
-\item La fecha de ocurrencia de un evento debe ser anterior a la fecha de ingreso del caso correspondiente.
-
-\item Si se tiene una tupla $\langle c,o\rangle$ en principal, entonces no puede estar la misma tupla en auxiliar o viceversa.
-
-\item Dada una tupla $\langle p,r \rangle$ en culpable, $\langle c,e \rangle$ en situación y $e.id\_estado$ $=$ $r.id\_estado$, entonces tiene que existir una tupla $\langle c,p,rol \rangle$ en involucrado.
-
-\item Dada una tupla $\langle c,e,p \rangle$ en sucesos debe existir la tupla $\langle c,r,p \rangle$ en involucrado.
-
-\item Dada una tupla $\langle c,r,p \rangle$ en involucrado, si p además es un oficial, dicho oficial no puede estar relacionado con el caso c a través de principal o auxiliar.
-
-\item Dada una tupla $\langle t,o,p \rangle$ en presentan, $o.dni = p.dni$
-
-\item Dada la tupla $\langle o,r \rangle$ en cerro, debe existir una tupla $\langle c,o \rangle$ en principal o en auxiliar tal que $c.id\_caso$ $\neq$ $r.id\_caso$.
-\end{itemize}
+\newpage
+\input{der.tex}
 
 \newpage
 \section{Modelo Relacional}
